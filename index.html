@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZenTask – Smart Todo & Focus Tracker</title>
+  <meta name="description" content="A beautiful, feature-rich todo list app with stopwatch, break reminders, and productivity tracking." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<div class="focus-banner" id="focusBanner">
+  <span>🎯</span>
+  <span id="focusBannerText">Focusing on: Task</span>
+  <button id="focusStopBtn" style="background:rgba(255,255,255,0.2);border:none;border-radius:50px;padding:4px 12px;color:#fff;cursor:pointer;font-size:0.8rem;">Stop</button>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-title">✏️ Edit Task</div>
+    <div class="modal-form">
+      <input class="task-input" id="editTitle" placeholder="Task title..." />
+      <select class="task-input" id="editCategory">
+        <option value="work">💼 Work</option>
+        <option value="personal">🏠 Personal</option>
+        <option value="health">💪 Health</option>
+        <option value="study">📚 Study</option>
+        <option value="other">⚡ Other</option>
+      </select>
+      <select class="task-input" id="editPriority">
+        <option value="high">🔴 High Priority</option>
+        <option value="medium">🟡 Medium Priority</option>
+        <option value="low">🟢 Low Priority</option>
+      </select>
+      <textarea class="task-input" id="editNote" rows="3" placeholder="Add a note (optional)..." style="resize:vertical;"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn ghost" id="cancelEditBtn">Cancel</button>
+      <button class="modal-btn primary" id="saveEditBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<div class="app-wrapper">
+  <header>
+    <div class="logo">Zen<span>Task</span></div>
+    <div class="header-right">
+      <div class="date-badge" id="dateBadge">—</div>
+      <button class="theme-btn" id="themeBtn" title="Toggle light mode">☀️</button>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-num" id="statTotal">0</div>
+      <div class="stat-label">Total Tasks</div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-num" id="statDone">0</div>
+      <div class="stat-label">Completed</div>
+    </div>
+    <div class="stat-card warning">
+      <div class="stat-num" id="statActive">0</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+    <div class="stat-card danger">
+      <div class="stat-num" id="statHigh">0</div>
+      <div class="stat-label">High Priority</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap" style="margin-bottom:24px;">
+    <div class="progress-label">
+      <span>Today's Progress</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="main-grid">
+    <div>
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-title"><div class="dot"></div> Add New Task</div>
+        <div class="add-task-form">
+          <div class="add-task-row">
+            <input class="task-input" id="taskTitleInput" placeholder="What do you need to do? ✨" />
+          </div>
+          <div class="add-task-row">
+            <select class="task-input" id="taskCategoryInput">
+              <option value="work">💼 Work</option>
+              <option value="personal">🏠 Personal</option>
+              <option value="health">💪 Health</option>
+              <option value="study">📚 Study</option>
+              <option value="other">⚡ Other</option>
+            </select>
+            <select class="task-input" id="taskPriorityInput">
+              <option value="medium">🟡 Medium Priority</option>
+              <option value="high">🔴 High Priority</option>
+              <option value="low">🟢 Low Priority</option>
+            </select>
+            <button class="add-btn" id="addTaskBtn"><span>+</span> Add Task</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;"><div class="dot"></div> My Tasks</div>
+        <div class="filter-tabs" id="filterTabs">
+          <button class="filter-tab active" data-filter="all">All</button>
+          <button class="filter-tab" data-filter="active">Active</button>
+          <button class="filter-tab" data-filter="completed">Completed</button>
+          <button class="filter-tab" data-filter="high">🔴 High</button>
+          <button class="filter-tab" data-filter="work">💼 Work</button>
+          <button class="filter-tab" data-filter="personal">🏠 Personal</button>
+          <button class="filter-tab" data-filter="health">💪 Health</button>
+          <button class="filter-tab" data-filter="study">📚 Study</button>
+        </div>
+        <div class="task-list" id="taskList"></div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-title"><div class="dot"></div> Completion Activity (28 days)</div>
+        <div class="heat-grid" id="heatGrid"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
+          <span style="font-size:0.72rem;color:var(--text-muted);">Less</span>
+          <div class="heat-cell"></div><div class="heat-cell h1"></div>
+          <div class="heat-cell h2"></div><div class="heat-cell h3"></div>
+          <span style="font-size:0.72rem;color:var(--text-muted);">More</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="card">
+        <div class="card-title"><div class="dot" style="background:#38bdf8"></div> Stopwatch</div>
+        <div class="stopwatch-display">
+          <div class="sw-time" id="swDisplay">00:00.00</div>
+          <div class="sw-laps-label" id="swLapsLabel">Ready to start</div>
+        </div>
+        <div class="sw-controls">
+          <button class="sw-btn start" id="swStartBtn">▶ Start</button>
+          <button class="sw-btn lap" id="swLapBtn" disabled>⚑ Lap</button>
+          <button class="sw-btn reset" id="swResetBtn">↺ Reset</button>
+        </div>
+        <div class="laps-list" id="lapsList"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="dot" style="background:#fbbf24"></div> Break Reminder</div>
+        <div class="break-ring">
+          <svg width="120" height="120">
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#8264ff"/>
+                <stop offset="100%" stop-color="#c084fc"/>
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="60" cy="60" r="55" />
+            <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="55" />
+          </svg>
+          <div class="break-time-text" id="breakTimeText">—</div>
+        </div>
+        <div class="break-label" id="breakLabel">Set a work interval and get reminded to take a break</div>
+        <div class="break-controls">
+          <select class="break-select" id="breakIntervalSel">
+            <option value="25">25 min</option>
+            <option value="45">45 min</option>
+            <option value="50">50 min</option>
+            <option value="60">60 min</option>
+            <option value="90">90 min</option>
+          </select>
+          <button class="break-btn start" id="breakToggleBtn">Start</button>
+        </div>
+        <div style="margin-top:12px;font-size:0.75rem;color:var(--text-muted);text-align:center;">
+          🌿 Pomodoro-style — take a 5-min break after each interval
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="dot" style="background:#34d399"></div> Daily Inspiration</div>
+        <div class="quote-card">
+          <div class="quote-text" id="quoteText"></div>
+          <div class="quote-author" id="quoteAuthor"></div>
+        </div>
+        <button id="nextQuoteBtn" style="width:100%;margin-top:12px;background:transparent;border:1px solid var(--border);border-radius:50px;padding:8px;color:var(--text-muted);cursor:pointer;font-size:0.82rem;transition:all .2s;">✨ New Quote</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
